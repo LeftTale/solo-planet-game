@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+
 
 public class PlanetGravity : MonoBehaviour
 {
@@ -14,12 +13,13 @@ public class PlanetGravity : MonoBehaviour
     void Start()
     {
        rbPlayer = player.GetComponent<Rigidbody2D>();
+      
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+       
     }
 
     private void FixedUpdate()
@@ -27,7 +27,7 @@ public class PlanetGravity : MonoBehaviour
         if (inRange)
         {
             rbPlayer.gravityScale = 0f;
-            rbPlayer.AddForce(new Vector2((planetBody.transform.position.x - player.transform.position.x), (planetBody.transform.position.y - player.transform.position.y)));
+            rbPlayer.AddForce(new Vector2((planetBody.transform.position.x - (player.transform.position.x)),(planetBody.transform.position.y - (player.transform.position.y))));
         }
         else if (!inRange)
             rbPlayer.gravityScale = 3f;
