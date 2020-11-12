@@ -37,7 +37,6 @@ public class PlanetGravity : MonoBehaviour
     {
         if(other.gameObject.tag == "Player")
         {
-            Debug.Log("attracted");
             inRange = true;
         }
 
