@@ -7,8 +7,6 @@ public class PlayerMovement : MonoBehaviour{
     public CharacterController2D controller;
     public Animator animator;
 
-    public GameObject planet;
-
     public float runSpeed = 40f;
 
     float horizontalMove = 0f;
@@ -29,7 +27,6 @@ public class PlayerMovement : MonoBehaviour{
             animator.SetBool("Jump", true);
         }
 
-        Debug.DrawLine(transform.position, planet.transform.position);
         if(Input.GetButtonDown("Crouch"))
         {
             crouch = true;

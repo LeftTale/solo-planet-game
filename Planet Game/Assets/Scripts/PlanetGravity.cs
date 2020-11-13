@@ -9,7 +9,7 @@ public class PlanetGravity : MonoBehaviour
 
     public GameObject player;
     public Rigidbody2D rbPlayer;
-    public bool inRange = false;
+    private bool inRange = false;
     public GameObject planetBody;
     public Transform myTransform;
     public Camera planetCam;
@@ -20,7 +20,13 @@ public class PlanetGravity : MonoBehaviour
     void Start()
     {
         //Get the players rigidbody
-       rbPlayer = player.GetComponent<Rigidbody2D>();
+        rbPlayer = player.GetComponent<Rigidbody2D>();
+
+        if(GameObject.Find("Planet") == null)
+        {
+          
+        }
+    
     }
 
     // Update is called once per frame
@@ -110,3 +116,4 @@ public class PlanetGravity : MonoBehaviour
         }
     }
 }
+
