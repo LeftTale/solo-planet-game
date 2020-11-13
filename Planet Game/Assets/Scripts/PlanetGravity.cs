@@ -12,7 +12,9 @@ public class PlanetGravity : MonoBehaviour
     public bool inRange = false;
     public GameObject planetBody;
     public Transform myTransform;
-    
+    public Camera planetCam;
+    public Camera playerCam;
+    Transform camTransform;
 
     // Start is called before the first frame update
     void Start()
@@ -51,8 +53,12 @@ public class PlanetGravity : MonoBehaviour
             rbPlayer.AddForce(force);
 
             myTransform = player.transform;
+            camTransform = planetCam.transform;
 
-            Attract(myTransform);
+            Attract(myTransform,camTransform);
+
+            planetCam.enabled = true;
+            playerCam.enabled = false;
         }
         else if (!inRange)
         {
@@ -60,6 +66,8 @@ public class PlanetGravity : MonoBehaviour
             rbPlayer.gravityScale = 3f;
             Quaternion target = Quaternion.Euler(0, 0, 0);
             player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
+            playerCam.enabled = true;
+            planetCam.enabled = false;
         }   
     }
 
@@ -70,7 +78,7 @@ public class PlanetGravity : MonoBehaviour
         return delta.normalized;
     }
 
-    public void Attract(Transform body)
+    public void Attract(Transform body,Transform cam)
     {
         //This is done Twice ***CLEAN****(Finding the upwards direction)
         Vector2 gravityUp = (body.position - planetBody.transform.position).normalized;
@@ -78,6 +86,8 @@ public class PlanetGravity : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
         body.rotation = Quaternion.Slerp(body.rotation, targetRotation, smooth * Time.deltaTime);
+        cam.rotation = Quaternion.Slerp(cam.rotation, targetRotation, smooth * Time.deltaTime);
+
     }
 
 
