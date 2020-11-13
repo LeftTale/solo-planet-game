@@ -3,31 +3,33 @@
 
 public class PlanetGravity : MonoBehaviour
 {
-    [SerializeField] float _force;
-
-    public float smooth = 2.0f;
-
-    public GameObject player;
+    ////////////////////////////////////////////////////////
+    [Space(10)]
+    [Header("Player info")]
     public Rigidbody2D rbPlayer;
-    private bool inRange = false;
-    public GameObject planetBody;
-    public Transform myTransform;
-    public Camera planetCam;
+    public GameObject player;
     public Camera playerCam;
+    [Space(10)]
+    [Header("Planet info")]
+    public GameObject planetBody;
+    public Camera planetCam;
+    private bool inRange = false;
+    [SerializeField] float _force;
+    [Space(10)]
+    [Header("Misc")]
+    public float smooth = 2.0f;
+    public Transform myTransform;
     Transform camTransform;
+    /////////////////////////////////////////////////////////
 
-    // Start is called before the first frame update
+
     void Start()
     {
         //Get the players rigidbody
         rbPlayer = player.GetComponent<Rigidbody2D>();
 
-        if(GameObject.Find("Planet") == null)
-        {
-          
-        }
-    
     }
+
 
     // Update is called once per frame
     void Update()
@@ -39,6 +41,7 @@ public class PlanetGravity : MonoBehaviour
         Debug.DrawRay(rbPlayer.transform.position, force, Color.red);
     }
 
+
     private void FixedUpdate()
     {
         //Save the position of the planet
@@ -46,6 +49,10 @@ public class PlanetGravity : MonoBehaviour
 
         if (inRange)
         {
+            //Switches cameras accordingly
+            planetCam.enabled = true;
+            playerCam.enabled = false;
+
             //Set the players gravity to 0
             rbPlayer.gravityScale = 0f;
 
@@ -58,23 +65,23 @@ public class PlanetGravity : MonoBehaviour
             //Apply the force
             rbPlayer.AddForce(force);
 
-            myTransform = player.transform;
-            camTransform = planetCam.transform;
 
-            Attract(myTransform,camTransform);
+            //calls attract  
+            Attract(player.transform, planetCam.transform);
 
-            planetCam.enabled = true;
-            playerCam.enabled = false;
         }
         else if (!inRange)
         {
             //return the players gravity to normal
             rbPlayer.gravityScale = 3f;
+            //Declares an upright rotation
             Quaternion target = Quaternion.Euler(0, 0, 0);
+            //Rotates the player to upright
             player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
+            //Resets the cameras
             playerCam.enabled = true;
             planetCam.enabled = false;
-        }   
+        }
     }
 
     static Vector2 GetDirection(Rigidbody2D body, Vector2 point)
@@ -84,27 +91,30 @@ public class PlanetGravity : MonoBehaviour
         return delta.normalized;
     }
 
-    public void Attract(Transform body,Transform cam)
+    public void Attract(Transform body, Transform cam)
     {
         //This is done Twice ***CLEAN****(Finding the upwards direction)
         Vector2 gravityUp = (body.position - planetBody.transform.position).normalized;
         Vector2 bodyUp = body.up;
 
+        //Finds the right angle to set the body and camera to
         Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
-        body.rotation = Quaternion.Slerp(body.rotation, targetRotation, smooth * Time.deltaTime);
-        cam.rotation = Quaternion.Slerp(cam.rotation, targetRotation, smooth * Time.deltaTime);
 
+        //Sets the bodys rotation
+        body.rotation = Quaternion.Slerp(body.rotation, targetRotation, smooth * Time.deltaTime);
+
+        //Sets the cameras rotation
+        cam.rotation = Quaternion.Slerp(cam.rotation, targetRotation, smooth * Time.deltaTime);
     }
 
 
     void OnTriggerEnter2D(Collider2D other)
     {
         //When the player enters the gravity field Set inRange to true
-        if(other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player")
         {
             inRange = true;
         }
-
     }
 
     private void OnTriggerExit2D(Collider2D other)

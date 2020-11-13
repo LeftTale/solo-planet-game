@@ -32,6 +32,7 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Awake()
 	{
+		//On awake gets the players rigidbody  Creates and event for landing on the ground
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 
 		if (OnLandEvent == null)
@@ -41,8 +42,10 @@ public class CharacterController2D : MonoBehaviour
 			OnCrouchEvent = new BoolEvent();
 	}
 
+
 	private void FixedUpdate()
 	{
+		//Check if the object was grounded and then resets loop
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
 
