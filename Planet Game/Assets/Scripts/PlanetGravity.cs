@@ -6,16 +6,18 @@ public class PlanetGravity : MonoBehaviour
     [Space(10)]
     [Header("Player info")]
     private Rigidbody2D rbPlayer;
-    public GameObject player;
-    public Camera playerCam;
+    private Camera playerCam;
+    [SerializeField] GameObject player;
+    
     [Space(10)]
     [Header("Planet info")]
     public GameObject planetBody;
     public Camera planetCam;
     [SerializeField] float _force;
+
     [Space(10)]
     [Header("Misc")]
-    public float smooth = 2.0f;
+    private float smooth = 10f;
     public Transform myTransform;
     Transform camTransform;
     private Quaternion targetRotation;
@@ -34,6 +36,7 @@ public class PlanetGravity : MonoBehaviour
         //Get the players rigidbody
         //Rigidbody is used to add force for gravity
         rbPlayer = player.GetComponent<Rigidbody2D>();
+        playerCam = player.GetComponentInChildren<Camera>();
     }
 
     /*
@@ -58,22 +61,49 @@ public class PlanetGravity : MonoBehaviour
 
         //Sets the cameras rotation
         planetCam.transform.rotation = Quaternion.Slerp(planetCam.transform.rotation, targetRotation, smooth * Time.deltaTime);
+    }
 
-       
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
+        {
+            planetCam.transform.position = playerCam.transform.position; 
+            //Switches cameras accordingly
+            planetCam.enabled = true;
+            playerCam.enabled = false;
+            
+            
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+
+        if (other.gameObject.tag == "Player" )
+        {
+            //return the players gravity to normal
+            rbPlayer.gravityScale = 3f;
+
+            //Declares an upright rotation
+            Quaternion target = Quaternion.Euler(0, 0, 0);
+
+            //Rotates the player to upright
+            while (Quaternion.Angle(player.transform.rotation, target) > 0)
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
+
+            //Resets the cameras
+            playerCam.enabled = true;
+            planetCam.enabled = false;
+        }
     }
 
     void OnTriggerStay2D(Collider2D other)
     {
-        //When the player enters the gravity field Set inRange to true
         if (other.gameObject.tag == "Player")
         {
             //Save the position of the planet & player
             var planetPosition = planetBody.transform.position;
             var playerPosition = player.transform.position;
-
-            //Switches cameras accordingly
-            planetCam.enabled = true;
-            playerCam.enabled = false;
 
             //Set the players gravity to 0
             rbPlayer.gravityScale = 0f;
@@ -92,7 +122,6 @@ public class PlanetGravity : MonoBehaviour
         }
     }
 
-
     //Takes in two vectors and returns the direction between them
      Vector2 GetDirection(Vector2 playerPoint, Vector2 planetPoint)
     {
@@ -107,24 +136,5 @@ public class PlanetGravity : MonoBehaviour
         body.rotation = Quaternion.Slerp(body.rotation, targetRot, smooth * Time.deltaTime);
     }
 
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        //When the player exits the gravity field set the inRange to false
-        if (other.gameObject.tag == "Player")
-        {
-            //return the players gravity to normal
-            rbPlayer.gravityScale = 3f;
-            //Declares an upright rotation
-            Quaternion target = Quaternion.Euler(0, 0, 0);
-            
-            //Rotates the player to upright
-            while(Quaternion.Angle(player.transform.rotation,target)>0)
-            player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
-            
-            //Resets the cameras
-            playerCam.enabled = true;
-            planetCam.enabled = false;
-        }
-    }
 }
 
