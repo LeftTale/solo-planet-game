@@ -7,40 +7,42 @@ public class PlanetGravity : MonoBehaviour
     [Header("Player info")]
     private Rigidbody2D rbPlayer;
     private Camera playerCam;
+    CharacterController2D playerController;
     [SerializeField] GameObject player;
+    
     
     [Space(10)]
     [Header("Planet info")]
-    public GameObject planetBody;
-    public Camera planetCam;
+    private Camera planetCam;
+    [SerializeField] GameObject planetBody;
     [SerializeField] float _force;
 
     [Space(10)]
     [Header("Misc")]
     private float smooth = 10f;
-    public Transform myTransform;
-    Transform camTransform;
+    private  Transform myTransform;
     private Quaternion targetRotation;
     /////////////////////////////////////////////////////////
-    
-    
-    
+
+
+
     /// <summary>
     /// Implement trolley Cam
     /// </summary>
 
 
-
-    void Start()
+    void Awake()
     {
         //Get the players rigidbody
         //Rigidbody is used to add force for gravity
         rbPlayer = player.GetComponent<Rigidbody2D>();
         playerCam = player.GetComponentInChildren<Camera>();
+        planetCam = planetBody.GetComponentInChildren<Camera>();
+        playerController = player.GetComponent<CharacterController2D>();
     }
-
+      
     /*
-     
+    
     // Update is called once per frame
     void Update()
     {
@@ -51,8 +53,7 @@ public class PlanetGravity : MonoBehaviour
     */
 
     private void FixedUpdate()
-    {
-        
+    {   
         Vector2 gravityUp = (player.transform.position - planetBody.transform.position).normalized;
         Vector2 bodyUp = player.transform.up;
 
@@ -67,20 +68,25 @@ public class PlanetGravity : MonoBehaviour
     {
         if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
-            planetCam.transform.position = playerCam.transform.position; 
+            playerController.SetAttracted();
+
+            //planetCam.transform.position = playerCam.transform.position; 
             //Switches cameras accordingly
             planetCam.enabled = true;
             playerCam.enabled = false;
-            
-            
+
+            //while ((Vector2)planetCam.transform.position != new Vector2(0f, 0f))
+               // planetCam.transform.localPosition = Vector2.MoveTowards((Vector2)planetCam.transform.localPosition, (Vector2)planetBody.transform.localPosition, 5* Time.deltaTime);
+
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
 
-        if (other.gameObject.tag == "Player" )
+        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
+            playerController.UnSetAttracted();
             //return the players gravity to normal
             rbPlayer.gravityScale = 3f;
 
@@ -99,7 +105,7 @@ public class PlanetGravity : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
             //Save the position of the planet & player
             var planetPosition = planetBody.transform.position;
@@ -115,7 +121,7 @@ public class PlanetGravity : MonoBehaviour
             var force = GetDirection(playerPosition, planetPosition) * forceMagnitude;
 
             //Apply the force as gravity
-            rbPlayer.AddForce(force);
+            rbPlayer.AddForce(force,ForceMode2D.Force);
 
             //calls attract  
             GravRotate(player.transform, targetRotation);
