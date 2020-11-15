@@ -13,7 +13,6 @@ public class PlanetGravity : MonoBehaviour
     
     [Space(10)]
     [Header("Planet info")]
-    private Camera planetCam;
     [SerializeField] GameObject planetBody;
     [SerializeField] float _force;
 
@@ -37,7 +36,6 @@ public class PlanetGravity : MonoBehaviour
         //Rigidbody is used to add force for gravity
         rbPlayer = player.GetComponent<Rigidbody2D>();
         playerCam = player.GetComponentInChildren<Camera>();
-        planetCam = planetBody.GetComponentInChildren<Camera>();
         playerController = player.GetComponent<CharacterController2D>();
     }
       
@@ -61,7 +59,7 @@ public class PlanetGravity : MonoBehaviour
         targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * player.transform.rotation;
 
         //Sets the cameras rotation
-        planetCam.transform.rotation = Quaternion.Slerp(planetCam.transform.rotation, targetRotation, smooth * Time.deltaTime);
+        //planetCam.transform.rotation = Quaternion.Slerp(planetCam.transform.rotation, targetRotation, smooth * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -72,8 +70,7 @@ public class PlanetGravity : MonoBehaviour
 
             //planetCam.transform.position = playerCam.transform.position; 
             //Switches cameras accordingly
-            planetCam.enabled = true;
-            playerCam.enabled = false;
+            
 
             //while ((Vector2)planetCam.transform.position != new Vector2(0f, 0f))
                // planetCam.transform.localPosition = Vector2.MoveTowards((Vector2)planetCam.transform.localPosition, (Vector2)planetBody.transform.localPosition, 5* Time.deltaTime);
@@ -98,8 +95,8 @@ public class PlanetGravity : MonoBehaviour
                 player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
 
             //Resets the cameras
-            playerCam.enabled = true;
-            planetCam.enabled = false;
+            
+            
         }
     }
 

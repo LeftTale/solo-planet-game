@@ -71,7 +71,6 @@ public class CharacterController2D : MonoBehaviour
 				
 				
 				{
-					Debug.Log("upright");
 					m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 				}
 				// If the input is moving the player right and the player is facing left...
@@ -90,7 +89,6 @@ public class CharacterController2D : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("Not Stuck");
 			//only control the player if grounded or airControl is turned on
 			if (m_Grounded || m_AirControl)
 			{
@@ -123,8 +121,13 @@ public class CharacterController2D : MonoBehaviour
 			}
 	}
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+       
+    }
 
-	private void Flip()
+
+    private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
 		m_FacingRight = !m_FacingRight;
