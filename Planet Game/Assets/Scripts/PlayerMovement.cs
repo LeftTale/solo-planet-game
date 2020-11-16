@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Space(10)]
     [Header("Player")]
-    public float runSpeed = 40f;
+    [SerializeField] float runSpeed = 40f;
     float horizontalMove = 0f;
     bool jump = false;
     // Update is called once per frame
@@ -27,6 +27,12 @@ public class PlayerMovement : MonoBehaviour
             jump = true;
             animator.SetBool("Jump", true);
         }
+
+        if (controller.Attracted)
+            runSpeed = 80f;
+        else
+            runSpeed = 40f;
+
     }
 
     void FixedUpdate()
@@ -41,4 +47,14 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("Jump", false);
     }
+
+    public float HorizontalMove
+    {
+        get => horizontalMove;
+        set => horizontalMove = value;
+    }
+
+    public bool Jump => jump;
+
+    
 }

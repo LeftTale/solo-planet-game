@@ -7,7 +7,7 @@ public class PlanetGravity : MonoBehaviour
     [Header("Player info")]
     private Rigidbody2D rbPlayer;
     private Camera playerCam;
-    CharacterController2D playerController;
+    private CharacterController2D playerController;
     [SerializeField] GameObject player;
     
     
@@ -24,13 +24,7 @@ public class PlanetGravity : MonoBehaviour
     /////////////////////////////////////////////////////////
 
 
-
-    /// <summary>
-    /// Implement trolley Cam
-    /// </summary>
-
-
-    void Awake()
+    private void Awake()
     {
         //Get the players rigidbody
         //Rigidbody is used to add force for gravity
@@ -38,17 +32,6 @@ public class PlanetGravity : MonoBehaviour
         playerCam = player.GetComponentInChildren<Camera>();
         playerController = player.GetComponent<CharacterController2D>();
     }
-      
-    /*
-    
-    // Update is called once per frame
-    void Update()
-    {
-       
-        var force = GetDirection(rbPlayer, planetBody.transform.position);
-        Debug.DrawRay(rbPlayer.transform.position, force, Color.red);
-    }
-    */
 
     private void FixedUpdate()
     {   
@@ -63,10 +46,9 @@ public class PlanetGravity : MonoBehaviour
     {
         if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
-            playerController.SetAttracted();
-
             //Set the players gravity to 0
             rbPlayer.gravityScale = 0f;
+            playerController.SetAttracted();
         }
     }
 
@@ -75,9 +57,10 @@ public class PlanetGravity : MonoBehaviour
 
         if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
-            playerController.UnSetAttracted();
             //return the players gravity to normal
             rbPlayer.gravityScale = 3f;
+
+            playerController.UnSetAttracted();
 
             //Declares an upright rotation
             Quaternion target = Quaternion.Euler(0, 0, 0);
@@ -86,13 +69,10 @@ public class PlanetGravity : MonoBehaviour
             while (Quaternion.Angle(player.transform.rotation, target) > 0)
                 player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
 
-            //Resets the cameras
-            
-            
         }
     }
 
-    void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
         {
@@ -115,14 +95,14 @@ public class PlanetGravity : MonoBehaviour
     }
 
     //Takes in two vectors and returns the direction between them
-     Vector2 GetDirection(Vector2 playerPoint, Vector2 planetPoint)
+    private Vector2 GetDirection(Vector2 playerPoint, Vector2 planetPoint)
     {
         // Calculate the delta position and normalize it to just return the direction
         var delta = planetPoint - playerPoint;
         return delta.normalized;
     }
 
-     void GravRotate(Transform body,Quaternion targetRot)
+    private void GravRotate(Transform body,Quaternion targetRot)
     {
         //Sets the bodys rotation
         body.rotation = Quaternion.Slerp(body.rotation, targetRot, smooth * Time.deltaTime);
