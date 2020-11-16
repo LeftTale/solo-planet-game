@@ -55,11 +55,8 @@ public class PlanetGravity : MonoBehaviour
         Vector2 gravityUp = (player.transform.position - planetBody.transform.position).normalized;
         Vector2 bodyUp = player.transform.up;
 
-        //Finds the right angle to set the body and camera to
+        //Finds the right angle to set the body to
         targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * player.transform.rotation;
-
-        //Sets the cameras rotation
-        //planetCam.transform.rotation = Quaternion.Slerp(planetCam.transform.rotation, targetRotation, smooth * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -68,13 +65,8 @@ public class PlanetGravity : MonoBehaviour
         {
             playerController.SetAttracted();
 
-            //planetCam.transform.position = playerCam.transform.position; 
-            //Switches cameras accordingly
-            
-
-            //while ((Vector2)planetCam.transform.position != new Vector2(0f, 0f))
-               // planetCam.transform.localPosition = Vector2.MoveTowards((Vector2)planetCam.transform.localPosition, (Vector2)planetBody.transform.localPosition, 5* Time.deltaTime);
-
+            //Set the players gravity to 0
+            rbPlayer.gravityScale = 0f;
         }
     }
 
@@ -107,9 +99,6 @@ public class PlanetGravity : MonoBehaviour
             //Save the position of the planet & player
             var planetPosition = planetBody.transform.position;
             var playerPosition = player.transform.position;
-
-            //Set the players gravity to 0
-            rbPlayer.gravityScale = 0f;
 
             // Calculate the magnitude of the force by the rigidbody mass
             var forceMagnitude = rbPlayer.mass * _force * Time.fixedDeltaTime;

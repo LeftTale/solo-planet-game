@@ -112,7 +112,7 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 
-		// If the player should jump...
+			// If the player should jump...
 			if (m_Grounded && jump)
 			{
 			// Add a vertical force to the player.
@@ -120,11 +120,6 @@ public class CharacterController2D : MonoBehaviour
 			m_Rigidbody2D.AddRelativeForce(new Vector2(0f, m_JumpForce));
 			}
 	}
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-       
-    }
 
 
     private void Flip()
