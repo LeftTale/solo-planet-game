@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Planet
+  - Grav
   layers:
   - Default
   - TransparentFX
@@ -38,6 +40,36 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BG10
+    uniqueID: 3064976099
+    locked: 0
+  - name: BG9
+    uniqueID: 3377901281
+    locked: 0
+  - name: BG8
+    uniqueID: 4129924405
+    locked: 0
+  - name: Bg7
+    uniqueID: 3389284053
+    locked: 0
+  - name: Bg6
+    uniqueID: 3573994705
+    locked: 0
+  - name: BG5
+    uniqueID: 3775490963
+    locked: 0
+  - name: BG4
+    uniqueID: 2854732007
+    locked: 0
+  - name: BG3
+    uniqueID: 1675567631
+    locked: 0
+  - name: BG2
+    uniqueID: 660455251
+    locked: 0
+  - name: BG1
+    uniqueID: 2841995049
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

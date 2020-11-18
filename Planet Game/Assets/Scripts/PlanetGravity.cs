@@ -44,23 +44,21 @@ public class PlanetGravity : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
+        if (other.gameObject.CompareTag("Player") && other.GetType() != typeof(BoxCollider2D))
         {
             //Set the players gravity to 0
             rbPlayer.gravityScale = 0f;
-            playerController.SetAttracted();
+            playerController.Attracted = true;
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
 
-        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
+        if (other.gameObject.CompareTag("Player") && other.GetType() != typeof(BoxCollider2D))
         {
             //return the players gravity to normal
             rbPlayer.gravityScale = 3f;
-
-            playerController.UnSetAttracted();
 
             //Declares an upright rotation
             Quaternion target = Quaternion.Euler(0, 0, 0);
@@ -69,12 +67,19 @@ public class PlanetGravity : MonoBehaviour
             while (Quaternion.Angle(player.transform.rotation, target) > 0)
                 player.transform.rotation = Quaternion.Slerp(player.transform.rotation, target, Time.deltaTime * smooth);
 
+
+            //Sets that the player has left the planet radius
+            playerController.Attracted = false;
+
+            //Gives the player a boost as they leave the planet radius
+            var outDir = GetDirection(planetBody.transform.position, player.transform.position) * 5;
+            rbPlayer.AddForce(outDir, ForceMode2D.Impulse);
         }
     }
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" && other.GetType() != typeof(BoxCollider2D))
+        if (other.gameObject.CompareTag("Player") && other.GetType() != typeof(BoxCollider2D))
         {
             //Save the position of the planet & player
             var planetPosition = planetBody.transform.position;
@@ -89,7 +94,7 @@ public class PlanetGravity : MonoBehaviour
             //Apply the force as gravity
             rbPlayer.AddForce(force,ForceMode2D.Force);
 
-            //calls attract  
+            //calls the rotation method  
             GravRotate(player.transform, targetRotation);
         }
     }
@@ -104,8 +109,8 @@ public class PlanetGravity : MonoBehaviour
 
     private void GravRotate(Transform body,Quaternion targetRot)
     {
-        //Sets the bodys rotation
-        body.rotation = Quaternion.Slerp(body.rotation, targetRot, smooth * Time.deltaTime);
+        //Sets the body rotation
+        body.rotation = Quaternion.Slerp(body.rotation, targetRot, Time.deltaTime * smooth);
     }
 
 }
