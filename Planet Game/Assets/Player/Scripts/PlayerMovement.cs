@@ -13,6 +13,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 camPosition;
     private Vector3 playerPosition;
     private TextDirector textDirector;
+    private AudioSource audioSource;
+    public AudioClip typingAudioClip;
+    public AudioClip ambientMusic;
     
 
     [Space(10)]
@@ -37,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
         //Save the name of the level as a string
         Scene currentScene = SceneManager.GetActiveScene();
         sceneName = currentScene.name;
+        audioSource = GetComponentInChildren<AudioSource>();
 
     }
 
@@ -69,6 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (dead)
             {
+
                 deathTimer -= Time.deltaTime;
                 if (deathTimer < 0)
                 {
@@ -105,8 +110,11 @@ public class PlayerMovement : MonoBehaviour
         //Dictates what happens when the player dies or loses
         if (other.CompareTag("Finish"))
         {
+            audioSource.Pause();
+            audioSource.clip = typingAudioClip;
+            audioSource.Play();
             playerCam.transform.parent = null;
-
+            
             if (sceneName == "IntroLevel")
             {
                 textDirector.SendDeathText(0);
@@ -133,4 +141,10 @@ public class PlayerMovement : MonoBehaviour
            
         }
     }
+
+    public void EnableCam()
+    {
+        playerCam.enabled = true;
+    }
+
 }

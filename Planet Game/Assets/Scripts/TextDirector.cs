@@ -43,6 +43,7 @@ public class TextDirector : MonoBehaviour
     public void Sendlvl1EndText()
     {
         textWriter.AddWriter(deathMessage, "Mission Goal: Find a habitable planet",.1f,true);
+
     }
     
 
