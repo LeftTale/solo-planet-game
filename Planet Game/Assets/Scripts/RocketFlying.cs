@@ -49,7 +49,7 @@ public class RocketFlying : MonoBehaviour
         {
             Vector2 planDir = GetDirection((Vector2) transform.position, (Vector2) guide.transform.position);
             Vector2 planDirRan = new Vector2(((Random.Range(1,5) * 0.1f) * (Random.Range(0,2) * 2 - 1) + planDir.x) ,    (Random.Range(1, 5) * 0.1f) * (Random.Range(0, 2) * 2 - 1) + planDir.y);
-            Vector2 rocketVec = planDir * (Vector2) transform.position;
+            Vector2 rocketVec = planDirRan * new Vector2(Mathf.Abs(transform.position.x),Mathf.Abs(transform.position.y));
             Instantiate(planetDec, rocketVec * 1.01f, this.transform.rotation);
             planetDecTimer = 0f;
         }

@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Rocket Controls.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Controls/Rocket Controls.inputactions'
 
 using System;
 using System.Collections;
