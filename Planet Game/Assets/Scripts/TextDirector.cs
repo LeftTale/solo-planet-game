@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TextDirector : MonoBehaviour
 {
     [SerializeField] private TextWriter textWriter;
-    private Text messageText;
-    private Text deathMessage;
+    private TextMeshProUGUI messageText;
+    private TextMeshProUGUI deathMessage;
     private int textCount;
 
     private List<string> displayText = new List<string>()
@@ -19,13 +20,17 @@ public class TextDirector : MonoBehaviour
 
     private List<string> loseText = new List<string>()
     {
-        "Avery failed the mission...Before it started"
+        "Avery failed the mission...Before it started",
+        "Avery took a wrong turn and is now lost in space",
+        "Avery was devoured by an alien lifeform"
     };
     
-    private void Awake()
+   
+
+    private void Start()
     {
-        messageText = GameObject.Find("CutSceneText").GetComponent<Text>();
-        deathMessage = GameObject.Find("DeathText").GetComponent<Text>();
+        //messageText = GameObject.Find("CutSceneText").GetComponent<Text>();
+        deathMessage = GameObject.Find("DeathText").GetComponent<TextMeshProUGUI>();
     }
 
 

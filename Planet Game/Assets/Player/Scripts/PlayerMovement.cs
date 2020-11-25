@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
@@ -10,12 +12,11 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController2D controller;
     public Animator animator;
     private Camera playerCam;
-    private Vector3 camPosition;
-    private Vector3 playerPosition;
-    private TextDirector textDirector;
+    public TextDirector textDirector;
     private AudioSource audioSource;
     public AudioClip typingAudioClip;
     public AudioClip ambientMusic;
+    public PlayableDirector cutScene;
     
 
     [Space(10)]
@@ -23,17 +24,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float runSpeed = 40f;
     private float horizontalMove;
     private bool jump;
-    private bool camReset;
     private string sceneName;
     private bool dead;
-    float deathTimer = 5f;
+    float deathTimer = 6f;
+    private bool locked;
+    private float xDeath, yDeath;
+
+    [Space(10)] 
+    [Header("Planet Specifics")]
+    private bool overHeating;
 
 
-    private void Awake()
-    {
-        playerCam = GetComponentInChildren<Camera>();
-        textDirector = GetComponent<TextDirector>();
-    }
+
+
 
     private void Start()
     {
@@ -41,11 +44,16 @@ public class PlayerMovement : MonoBehaviour
         Scene currentScene = SceneManager.GetActiveScene();
         sceneName = currentScene.name;
         audioSource = GetComponentInChildren<AudioSource>();
-
+        playerCam = GameObject.Find("PlayerCam").GetComponent<Camera>();
     }
 
     void Update()
     {
+        if (Input.GetKeyDown((KeyCode.C)))
+        {
+            cutScene.time = 24f;
+        }
+
         if (GameManager.isInputEnabled)
         {
             //Sets the run speed
@@ -64,16 +72,18 @@ public class PlayerMovement : MonoBehaviour
             //When on the planet, speed up the character
             runSpeed = controller.Attracted ? 120f : 40f;
 
-            if (camReset)
-                playerCam.transform.position = Vector3.Lerp(camPosition, playerPosition, 1f);
 
-            if (playerCam.transform.localPosition == new Vector3(0, 0, -10))
-                camReset = false;
-
-
-            if (dead)
+            if (dead && locked)
+            { 
+                transform.position = new Vector3(xDeath,yDeath,0);
+                deathTimer -= Time.deltaTime;
+                if (deathTimer < 0)
+                {
+                    SceneManager.LoadScene(sceneName);
+                }
+            }
+            else if (dead)
             {
-
                 deathTimer -= Time.deltaTime;
                 if (deathTimer < 0)
                 {
@@ -82,15 +92,13 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+    
 
     void FixedUpdate()
     {
         //Move our character
         controller.Move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
-
-        camPosition = playerCam.transform.position;
-        playerPosition = new Vector3(transform.position.x,transform.position.y,-1f);
     }
 
     //Disables the jump animation
@@ -124,12 +132,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        ///Fire Planet Code
+        if (other.gameObject.CompareTag("FirePlanet"))
+        {
+
+        }
+    }
+
+
     private void OnTriggerStay2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Grav"))
         {
             Vector3 planPosition = new Vector3(other.transform.position.x,other.transform.position.y,-1f);
-            playerCam.transform.position = Vector3.Lerp(camPosition,planPosition, 1);
+            //playerCam.transform.position = Vector3.Lerp(camPosition,planPosition, 1);
         }
     }
 
@@ -137,8 +155,16 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Grav"))
         {
-            camReset = true;
+            // camReset = true;
            
+        }
+        else if (other.gameObject.CompareTag("LevelBoundary"))
+        {
+            xDeath = transform.position.x;
+            yDeath = transform.position.y;
+            textDirector.SendDeathText(1);
+            dead = true;
+            locked = true;
         }
     }
 

@@ -41,18 +41,19 @@ public class RocketFlying : MonoBehaviour
 
     private void Update()
     {
-        debugText.text = speedIncrement.ToString();
+        
 
-        planetDecTimer += Time.deltaTime;
+       // planetDecTimer += Time.deltaTime;
 
-        if (planetDecTimer > 5)
-        {
-            Vector2 planDir = GetDirection((Vector2) transform.position, (Vector2) guide.transform.position);
-            Vector2 planDirRan = new Vector2(((Random.Range(1,5) * 0.1f) * (Random.Range(0,2) * 2 - 1) + planDir.x) ,    (Random.Range(1, 5) * 0.1f) * (Random.Range(0, 2) * 2 - 1) + planDir.y);
-            Vector2 rocketVec = planDirRan * new Vector2(Mathf.Abs(transform.position.x),Mathf.Abs(transform.position.y));
-            Instantiate(planetDec, rocketVec * 1.01f, this.transform.rotation);
-            planetDecTimer = 0f;
-        }
+        //if (planetDecTimer > 2)
+        //{
+            //Gets the direction the rockets flying
+            //Vector2 planDir = GetDirection((Vector2) transform.position, (Vector2) guide.transform.position);
+            //Vector2 rocketVec = planDir * new Vector2(Mathf.Abs(transform.position.x), Mathf.Abs(transform.position.y));
+            
+            //Instantiate(planetDec, rocketVec * 1.01f, this.transform.rotation);
+           // planetDecTimer = 0f;
+        //}
 
     }
 
@@ -88,7 +89,7 @@ public class RocketFlying : MonoBehaviour
     {
         controls.RocketFlight.Disable();
     }
-    private Vector2 GetDirection(Vector2 source, Vector2 outD)
+    public Vector2 GetDirection(Vector2 source, Vector2 outD)
     {
         // Calculate the delta position and normalize it to just return the direction
         var delta = outD - source;

@@ -8510,7 +8510,7 @@ GameObject:
   - component: {fileID: 853777079}
   - component: {fileID: 853777077}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: CutSceneCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8723,6 +8723,18 @@ MonoBehaviour:
           m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
           m_MethodName: SetInputOn
           m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1002898980}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -10600,7 +10612,7 @@ GameObject:
   - component: {fileID: 1182607541356598582}
   - component: {fileID: 1182607541356598583}
   m_Layer: 0
-  m_Name: Player Camera
+  m_Name: PlayerCam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11033,6 +11045,7 @@ MonoBehaviour:
   animator: {fileID: 1182607542929165429}
   typingAudioClip: {fileID: 8300000, guid: 8037c6201abc5df4eb30a0924b6a94ce, type: 3}
   ambientMusic: {fileID: 8300000, guid: 35b529715dd65fc4fbdfd9cc9e8f45ee, type: 3}
+  cutScene: {fileID: 1002898981}
   runSpeed: 40
 --- !u!95 &1182607542929165429
 Animator:

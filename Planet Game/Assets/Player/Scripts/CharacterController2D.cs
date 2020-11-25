@@ -1,5 +1,12 @@
-﻿using UnityEngine;
+﻿
+using System.Collections;
+using System.Numerics;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -15,26 +22,91 @@ public class CharacterController2D : MonoBehaviour
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
     private bool attracted;
+    private bool planGrounded;
+    private Camera playerCam;
+    private GameObject guide;
+    private TextMeshProUGUI debugText;
+    private bool boostCoolDown;
+    private GameObject cursorGameObject;
+    public Animator sliderAnimator;
+    public AudioSource audioSource;
+    private ParticleSystem boosterParticleSystem;
+    private ParticleSystem speedParticleSystem;
+    private ParticleSystem.VelocityOverLifetimeModule velocityModule;
 
-	[Header("Events")]
+    [Header("Events")]
 	[Space]
 
 	public UnityEvent OnLandEvent;
-	[System.Serializable]
+
+    [System.Serializable]
 	public class BoolEvent : UnityEvent<bool> { }
 
-	
-	private void Awake()
+
+    private void Start()
+    {
+        cursorGameObject = GameObject.Find("Controller Cursor").transform.Find("Cursor").gameObject;
+        velocityModule = boosterParticleSystem.velocityOverLifetime;
+    }
+
+    private void Awake()
 	{
 		//On awake gets the players rigidbody  Creates and event for landing on the ground
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
+        playerCam = GameObject.Find("PlayerCam").GetComponent<Camera>();
+        guide = transform.Find("Guide").gameObject;
+        debugText = GameObject.Find("Debug Text").GetComponent<TextMeshProUGUI>();
+        boosterParticleSystem = transform.Find("Boost Particles").GetComponent<ParticleSystem>();
+        
 
-		if (OnLandEvent == null)
+        if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
     }
 
+    private void Update()
+    {
+        if (Input.GetButtonDown("Fire1") && !boostCoolDown)
+        {
+            Vector2 boostDirVector2 =
+                GetDirection(playerCam.WorldToScreenPoint(transform.position), Input.mousePosition);
+            m_Rigidbody2D.AddForce(boostDirVector2 * (m_JumpForce * 2));
+            boosterParticleSystem.Emit(100);
+            audioSource.Play();
+            StartCoroutine(BoostCD());
+            
+        }
+        else if (Input.GetAxisRaw("Fire1") > 0.9f && !boostCoolDown)
+        {
+            Vector2 cursorPos = cursorGameObject.transform.position;
+            Vector2 boostCurVector2 = GetDirection(transform.position, cursorPos);
+            m_Rigidbody2D.AddForce(boostCurVector2 * (m_JumpForce * 2));
+            boosterParticleSystem.Emit(100);
+            audioSource.Play();
+            StartCoroutine(BoostCD());
+            
+        }
+    }
 
-	private void FixedUpdate()
+    IEnumerator BoostCD()
+    {
+        boostCoolDown = true;
+        sliderAnimator.SetBool("coolDownTimerStart",true);
+
+        yield return new WaitForSeconds(6f);
+
+        sliderAnimator.SetBool("coolDownTimerStart",false);
+        boostCoolDown = false;
+    }
+
+    void controlParticles(Vector2 Cursor)
+    {
+        if (Cursor.x < 0)
+            velocityModule.xMultiplier = -70;
+        else
+            velocityModule.xMultiplier = 70;
+    }
+
+    private void FixedUpdate()
 	{
 		//Check if the object was grounded and then resets loop
 		bool wasGrounded = m_Grounded;
@@ -54,19 +126,12 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
+   
 
 	public void Move(float move, bool jump)
 	{
-        if (Attracted)
-        {
-            //only control the player if grounded or airControl is turned on
-            if (m_Grounded || m_AirControl)
-            {
-                m_Rigidbody2D.AddRelativeForce(Vector2.right * move,ForceMode2D.Force);
-            }
-            
-        }
-        else
+        //If the player is in regular gravity
+        if (m_Rigidbody2D.gravityScale >= 3f)
         {
             if (m_Grounded || m_AirControl)
             {
@@ -76,8 +141,37 @@ public class CharacterController2D : MonoBehaviour
 
                 m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity,
                     m_MovementSmoothing);
+
+                debugText.text = "State 1";
             }
         }
+        else if (m_Rigidbody2D.gravityScale == 0.5f)
+        {
+            Vector2 directionVector2 = new Vector2(move,Input.GetAxisRaw("Vertical")*-1) * 5;
+            m_Rigidbody2D.AddForce(directionVector2);
+        }
+        else
+        {
+            Vector2 guideDir = GetDirection(transform.position, guide.transform.position);
+            //only control the player if grounded or airControl is turned on
+            if (planGrounded && Attracted)
+            {
+                debugText.text = "State 3";
+                Vector2 targetVelocity = guideDir * (2f * Mathf.Abs(move));
+
+                m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity,
+                    m_MovementSmoothing);
+            }
+            else if (attracted)
+            {
+                debugText.text = "State 2";
+                Vector2 targetForce = guideDir * (2f * Mathf.Abs(move));
+                m_Rigidbody2D.AddForce(targetForce);
+            }
+            
+        }
+        
+
 
         // If the input is moving the player right and the player is facing left...
         if (move > 0 && !m_FacingRight)
@@ -116,5 +210,17 @@ public class CharacterController2D : MonoBehaviour
     {
         get => attracted;
         set => attracted = value;
+    }
+
+    public bool PlanGrounded
+    {
+        get => planGrounded;
+        set => planGrounded = value;
+    }
+    public Vector2 GetDirection(Vector2 source, Vector2 outD)
+    {
+        // Calculate the delta position and normalize it to just return the direction
+        var delta = outD - source;
+        return delta.normalized;
     }
 }

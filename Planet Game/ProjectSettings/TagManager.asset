@@ -7,6 +7,16 @@ TagManager:
   - Planet
   - Grav
   - OOB
+  - Fire Planet
+  - Ice Planet
+  - RadioActive Planet
+  - Freeze Planet
+  - Rough Planet
+  - Moon
+  - Flooded Planet
+  - Weird Planet
+  - LevelBoundary
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -19,7 +29,7 @@ TagManager:
   - Player
   - Ground
   - Planet
-  - 
+  - Gravity Field
   - 
   - 
   - 
