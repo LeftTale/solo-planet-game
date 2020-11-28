@@ -1,9 +1,8 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
-using UnityEngine.Timeline;
-using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -17,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
     public AudioClip typingAudioClip;
     public AudioClip ambientMusic;
     public PlayableDirector cutScene;
-    
+
 
     [Space(10)]
     [Header("Player")]
@@ -29,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     float deathTimer = 6f;
     private bool locked;
     private float xDeath, yDeath;
+    private bool deathBlock;
 
     [Space(10)] 
     [Header("Planet Specifics")]
@@ -45,6 +45,9 @@ public class PlayerMovement : MonoBehaviour
         sceneName = currentScene.name;
         audioSource = GetComponentInChildren<AudioSource>();
         playerCam = GameObject.Find("PlayerCam").GetComponent<Camera>();
+        GameManager.isInputEnabled = true;
+        textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").gameObject
+            .GetComponent<TextDirector>();
     }
 
     void Update()
@@ -52,6 +55,31 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown((KeyCode.C)))
         {
             cutScene.time = 24f;
+        }
+
+        if (dead && locked)
+        { 
+            transform.position = new Vector3(xDeath,yDeath,0);
+            deathTimer -= Time.deltaTime;
+            if (deathTimer < 0)
+            {
+                SceneManager.LoadScene(sceneName);
+            }
+        }
+        else if (dead)
+        { 
+            if(!deathBlock)
+                DeathAnimBlock();
+                
+            GameManager.isInputEnabled = false;
+
+            deathTimer -= Time.deltaTime;
+
+            if (deathTimer < 0)
+            {
+                
+                SceneManager.LoadScene(sceneName);
+            }
         }
 
         if (GameManager.isInputEnabled)
@@ -83,16 +111,25 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
             else if (dead)
-            {
+            { 
+                if(!deathBlock)
+                    DeathAnimBlock();
+                
+                GameManager.isInputEnabled = false;
+
                 deathTimer -= Time.deltaTime;
+
                 if (deathTimer < 0)
-                {
                     SceneManager.LoadScene(sceneName);
-                }
             }
         }
     }
-    
+
+    void DeathAnimBlock()
+    { 
+        animator.SetTrigger("Death");
+        deathBlock = true;
+    }
 
     void FixedUpdate()
     {
@@ -111,6 +148,15 @@ public class PlayerMovement : MonoBehaviour
     {
         get => horizontalMove;
         set => horizontalMove = value;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Deadly"))
+        {
+            Dead = true;
+            textDirector.SendDeathText(4);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -132,33 +178,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay2D(Collision2D other)
-    {
-        ///Fire Planet Code
-        if (other.gameObject.CompareTag("FirePlanet"))
-        {
-
-        }
-    }
-
-
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Grav"))
-        {
-            Vector3 planPosition = new Vector3(other.transform.position.x,other.transform.position.y,-1f);
-            //playerCam.transform.position = Vector3.Lerp(camPosition,planPosition, 1);
-        }
+        
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Grav"))
-        {
-            // camReset = true;
-           
-        }
-        else if (other.gameObject.CompareTag("LevelBoundary"))
+        if (other.gameObject.CompareTag("LevelBoundary"))
         {
             xDeath = transform.position.x;
             yDeath = transform.position.y;
@@ -173,4 +200,9 @@ public class PlayerMovement : MonoBehaviour
         playerCam.enabled = true;
     }
 
+    public bool Dead
+    {
+        get => dead;
+        set => dead = value;
+    }
 }

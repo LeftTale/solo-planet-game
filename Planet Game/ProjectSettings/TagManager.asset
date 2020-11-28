@@ -17,6 +17,8 @@ TagManager:
   - Weird Planet
   - LevelBoundary
   - Enemy
+  - Deadly
+  - Score
   layers:
   - Default
   - TransparentFX

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Cinemachine;
+﻿using Cinemachine;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
@@ -10,7 +9,6 @@ public class PlanetGravity : MonoBehaviour
     [Space(10)]
     [Header("Player info")]
     private Rigidbody2D rbPlayer;
-    private Camera playerCam;
     private CharacterController2D playerController;
     private GameObject player;
 
@@ -42,7 +40,6 @@ public class PlanetGravity : MonoBehaviour
         //Rigidbody is used to add force for gravity
         player = GameObject.Find("MainPlayer").gameObject;
         rbPlayer = player.GetComponent<Rigidbody2D>();
-        playerCam = player.GetComponentInChildren<Camera>();
         playerController = player.GetComponent<CharacterController2D>();
 
         if (enemyTransform != null)

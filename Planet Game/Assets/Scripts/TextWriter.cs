@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TextWriter : MonoBehaviour
 {
@@ -13,6 +9,7 @@ public class TextWriter : MonoBehaviour
     private float timePerCharacter;
     private float timer;
     private bool invisibleCharacters;
+
     public void AddWriter(TextMeshProUGUI uiText, string textToWrite, float timePerCharacter,bool invisibleCharacters)
     {
         this.uiText = uiText;
@@ -49,4 +46,6 @@ public class TextWriter : MonoBehaviour
             }
         }
     }
+
+    public TextMeshProUGUI UIText => uiText;
 }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8578249069600536781}
   m_Layer: 11
   m_Name: Grav Field
-  m_TagString: Grav
+  m_TagString: Fire Planet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46553f8f922318445b0b905c0bc2ca95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  enemyTransform: {fileID: 0}
   planetBody: {fileID: 8578249070432730800}
   _force: 2000
   virtualCamera: {fileID: 0}
@@ -178,7 +178,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbed92351b5d46b498e8a6735ea67b7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
 --- !u!50 &8578249070432730801
 Rigidbody2D:
   serializedVersion: 4

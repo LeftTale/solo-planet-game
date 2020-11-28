@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class wildAlienMovement : MonoBehaviour
+public class WildAlienMovement : MonoBehaviour
 {
     private Rigidbody2D enemyRB;
     private GameObject enemyGuide;
     private Animator enemyAnimator;
-    private GameObject playerGameObject;
     private TextDirector textDirector;
+    private PlayerMovement playerScript;
 
     private bool collideHit;
 
@@ -21,11 +18,9 @@ public class wildAlienMovement : MonoBehaviour
         enemyGuide = transform.Find("Enemy Guide").gameObject;
         //Acquire the enemy animator
         enemyAnimator = transform.Find("WildAlienGFX").gameObject.GetComponent<Animator>();
-        //Acquire the player object
-        playerGameObject = GameObject.FindGameObjectWithTag("Player");
         //Acquire the Text Director
-        textDirector = GameObject.Find("Canvas").transform.Find("TextDirector").GetComponent<TextDirector>();
-
+        textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").GetComponent<TextDirector>();
+        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
 
         enemyAnimator.SetBool("alienRun",true);
     }
@@ -53,6 +48,7 @@ public class wildAlienMovement : MonoBehaviour
         if (other.gameObject.CompareTag("Player") && collideHit == false)
         {
             collideHit = true;
+            playerScript.Dead = true;
             textDirector.SendDeathText(2);
             enemyAnimator.SetBool("alienIdle",true);
             enemyAnimator.SetBool("alienRun", false);

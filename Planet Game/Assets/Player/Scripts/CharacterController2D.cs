@@ -1,10 +1,9 @@
 ﻿
 using System.Collections;
-using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
+using UnityEngine.Serialization;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -12,32 +11,30 @@ public class CharacterController2D : MonoBehaviour
 {
 	[SerializeField] private float m_JumpForce = 400f;                          // Amount of force added when the player jumps.
 	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;  // How much to smooth out the movement
-	[SerializeField] private bool m_AirControl = false;                         // Whether or not a player can steer while jumping;
+	[SerializeField] private bool m_AirControl;                         // Whether or not a player can steer while jumping;
 	[SerializeField] private LayerMask m_WhatIsGround;                          // A mask determining what is ground to the character
 	[SerializeField] private Transform m_GroundCheck;                           // A position marking where to check if the player is grounded.
 
-    const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
-	private bool m_Grounded;            // Whether or not the player is grounded.
+    const float KGroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+	private bool mGrounded;            // Whether or not the player is grounded.
 	private Rigidbody2D m_Rigidbody2D;
-	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
+	private bool mFacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
     private bool attracted;
     private bool planGrounded;
     private Camera playerCam;
     private GameObject guide;
-    private TextMeshProUGUI debugText;
     private bool boostCoolDown;
     private GameObject cursorGameObject;
     public Animator sliderAnimator;
     public AudioSource audioSource;
     private ParticleSystem boosterParticleSystem;
-    private ParticleSystem speedParticleSystem;
-    private ParticleSystem.VelocityOverLifetimeModule velocityModule;
 
+    [FormerlySerializedAs("OnLandEvent")]
     [Header("Events")]
 	[Space]
 
-	public UnityEvent OnLandEvent;
+	public UnityEvent onLandEvent;
 
     [System.Serializable]
 	public class BoolEvent : UnityEvent<bool> { }
@@ -46,7 +43,6 @@ public class CharacterController2D : MonoBehaviour
     private void Start()
     {
         cursorGameObject = GameObject.Find("Controller Cursor").transform.Find("Cursor").gameObject;
-        velocityModule = boosterParticleSystem.velocityOverLifetime;
     }
 
     private void Awake()
@@ -55,17 +51,16 @@ public class CharacterController2D : MonoBehaviour
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
         playerCam = GameObject.Find("PlayerCam").GetComponent<Camera>();
         guide = transform.Find("Guide").gameObject;
-        debugText = GameObject.Find("Debug Text").GetComponent<TextMeshProUGUI>();
         boosterParticleSystem = transform.Find("Boost Particles").GetComponent<ParticleSystem>();
         
 
-        if (OnLandEvent == null)
-			OnLandEvent = new UnityEvent();
+        if (onLandEvent == null)
+			onLandEvent = new UnityEvent();
     }
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire1") && !boostCoolDown)
+        if (Input.GetButtonDown("Fire1") && !boostCoolDown && GameManager.isInputEnabled)
         {
             Vector2 boostDirVector2 =
                 GetDirection(playerCam.WorldToScreenPoint(transform.position), Input.mousePosition);
@@ -75,7 +70,7 @@ public class CharacterController2D : MonoBehaviour
             StartCoroutine(BoostCD());
             
         }
-        else if (Input.GetAxisRaw("Fire1") > 0.9f && !boostCoolDown)
+        else if (Input.GetAxisRaw("Fire1") > 0.9f && !boostCoolDown && GameManager.isInputEnabled)
         {
             Vector2 cursorPos = cursorGameObject.transform.position;
             Vector2 boostCurVector2 = GetDirection(transform.position, cursorPos);
@@ -98,30 +93,22 @@ public class CharacterController2D : MonoBehaviour
         boostCoolDown = false;
     }
 
-    void controlParticles(Vector2 Cursor)
-    {
-        if (Cursor.x < 0)
-            velocityModule.xMultiplier = -70;
-        else
-            velocityModule.xMultiplier = 70;
-    }
-
     private void FixedUpdate()
 	{
 		//Check if the object was grounded and then resets loop
-		bool wasGrounded = m_Grounded;
-		m_Grounded = false;
+		bool wasGrounded = mGrounded;
+		mGrounded = false;
 
 		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
 		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
-		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, KGroundedRadius, m_WhatIsGround);
 		for (int i = 0; i < colliders.Length; i++)
 		{
 			if (colliders[i].gameObject != gameObject)
 			{
-				m_Grounded = true;
+				mGrounded = true;
 				if (!wasGrounded)
-					OnLandEvent.Invoke();
+					onLandEvent.Invoke();
 			}
 		}
 	}
@@ -133,7 +120,7 @@ public class CharacterController2D : MonoBehaviour
         //If the player is in regular gravity
         if (m_Rigidbody2D.gravityScale >= 3f)
         {
-            if (m_Grounded || m_AirControl)
+            if (mGrounded || m_AirControl)
             {
                 // Move the character by finding the target velocity
                 Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
@@ -141,8 +128,6 @@ public class CharacterController2D : MonoBehaviour
 
                 m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity,
                     m_MovementSmoothing);
-
-                debugText.text = "State 1";
             }
         }
         else if (m_Rigidbody2D.gravityScale == 0.5f)
@@ -156,7 +141,6 @@ public class CharacterController2D : MonoBehaviour
             //only control the player if grounded or airControl is turned on
             if (planGrounded && Attracted)
             {
-                debugText.text = "State 3";
                 Vector2 targetVelocity = guideDir * (2f * Mathf.Abs(move));
 
                 m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity,
@@ -164,7 +148,6 @@ public class CharacterController2D : MonoBehaviour
             }
             else if (attracted)
             {
-                debugText.text = "State 2";
                 Vector2 targetForce = guideDir * (2f * Mathf.Abs(move));
                 m_Rigidbody2D.AddForce(targetForce);
             }
@@ -174,22 +157,22 @@ public class CharacterController2D : MonoBehaviour
 
 
         // If the input is moving the player right and the player is facing left...
-        if (move > 0 && !m_FacingRight)
+        if (move > 0 && !mFacingRight)
         {
             // ... flip the player.
             Flip();
         }
         // Otherwise if the input is moving the player left and the player is facing right...
-        else if (move < 0 && m_FacingRight)
+        else if (move < 0 && mFacingRight)
         {
             // ... flip the player.
             Flip();
         }
         // If the player should jump...
-        if (m_Grounded && jump)
+        if (mGrounded && jump)
         {
             // Add a vertical force to the player.
-            m_Grounded = false;
+            mGrounded = false;
             m_Rigidbody2D.AddRelativeForce(new Vector2(0f, m_JumpForce));
         }
     }
@@ -198,7 +181,7 @@ public class CharacterController2D : MonoBehaviour
     private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
-		m_FacingRight = !m_FacingRight;
+		mFacingRight = !mFacingRight;
 
 		// Multiply the player's x local scale by -1.
 		Vector3 theScale = transform.localScale;

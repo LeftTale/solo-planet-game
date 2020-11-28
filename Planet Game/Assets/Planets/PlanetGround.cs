@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using UnityEngine;
-using UnityEngine.UIElements;
+﻿using UnityEngine;
 
 public class PlanetGround : MonoBehaviour
 {
     private GameObject player;
-    private Rigidbody2D rbPlayer;
     private CharacterController2D controller;
 
     private void Awake()
     {
         player = GameObject.Find("MainPlayer").gameObject;
-        rbPlayer = player.GetComponent<Rigidbody2D>();
         controller = player.GetComponent<CharacterController2D>();
        
     }
