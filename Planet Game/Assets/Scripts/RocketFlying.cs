@@ -16,6 +16,7 @@ public class RocketFlying : MonoBehaviour
     public List<GameObject> cometsList;
     private float planetDecTimer;
     
+    
 
     private void Awake()
     {
@@ -34,7 +35,6 @@ public class RocketFlying : MonoBehaviour
     {
        rocketRB = GetComponent<Rigidbody2D>();
        guide = GameObject.Find("Guide");
-       
     }
 
     private void Update()

@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -42,7 +43,13 @@ public class CharacterController2D : MonoBehaviour
 
     private void Start()
     {
-        cursorGameObject = GameObject.Find("Controller Cursor").transform.Find("Cursor").gameObject;
+        Scene currentScene = SceneManager.GetActiveScene();
+        string sceneName = currentScene.name;
+
+        if (sceneName != "IntroLevel")
+        {
+            cursorGameObject = GameObject.Find("Controller Cursor").transform.Find("Cursor").gameObject;
+        }
     }
 
     private void Awake()
@@ -60,7 +67,8 @@ public class CharacterController2D : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire1") && !boostCoolDown && GameManager.isInputEnabled)
+        //Trigger the boost if the player uses left click 
+        if (Input.GetButtonDown("Fire1") && !boostCoolDown && GameManager.isInputEnabled && GameManager.isBoostEnabled)
         {
             Vector2 boostDirVector2 =
                 GetDirection(playerCam.WorldToScreenPoint(transform.position), Input.mousePosition);
@@ -70,7 +78,8 @@ public class CharacterController2D : MonoBehaviour
             StartCoroutine(BoostCD());
             
         }
-        else if (Input.GetAxisRaw("Fire1") > 0.9f && !boostCoolDown && GameManager.isInputEnabled)
+        //Trigger the boost if the player uses the right trigger on a controllerd
+        else if (Input.GetAxisRaw("Fire1") > 0.9f && !boostCoolDown && GameManager.isInputEnabled && GameManager.isBoostEnabled)
         {
             Vector2 cursorPos = cursorGameObject.transform.position;
             Vector2 boostCurVector2 = GetDirection(transform.position, cursorPos);
@@ -87,7 +96,7 @@ public class CharacterController2D : MonoBehaviour
         boostCoolDown = true;
         sliderAnimator.SetBool("coolDownTimerStart",true);
 
-        yield return new WaitForSeconds(6f);
+        yield return new WaitForSeconds(4f);
 
         sliderAnimator.SetBool("coolDownTimerStart",false);
         boostCoolDown = false;

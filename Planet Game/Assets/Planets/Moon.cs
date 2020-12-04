@@ -9,7 +9,7 @@ public class Moon : MonoBehaviour
     public bool fullOrbit;
     public bool puzzle1;
     private readonly Vector3 zAxis = new Vector3(0,0,1);
-    private float cometSpeed = 10f;
+    private float cometSpeed = 5f;
     private float moonTimer = 4f;
 
 
@@ -20,11 +20,16 @@ public class Moon : MonoBehaviour
             moonTimer -= Time.deltaTime;
             if (moonTimer < 0)
             {
-                moonTimer = 4f;
+                moonTimer = 12f;
                 cometSpeed = -cometSpeed;
             }
 
             transform.RotateAround(neighbourPlanet.transform.position, zAxis, cometSpeed * Time.deltaTime);
+        }
+
+        if (fullOrbit)
+        {
+            transform.RotateAround(neighbourPlanet.transform.position,zAxis,15 * Time.deltaTime);
         }
 
         if (puzzle1)
@@ -32,7 +37,7 @@ public class Moon : MonoBehaviour
             moonTimer -= Time.deltaTime;
             if (moonTimer < 0)
             {
-                moonTimer = 4f;
+                moonTimer = 10f;
                 cometSpeed = -cometSpeed;
             }
 

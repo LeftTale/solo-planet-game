@@ -3,13 +3,11 @@ using UnityEngine.Playables;
 
 public class IntroRocket : MonoBehaviour
 {
-    private ParticleSystem particle;
     private GameObject player;
     private SpriteRenderer playerSprite;
     private PlayableDirector director;
-    private void Awake()
+    private void Start()
     {
-        particle = GetComponentInChildren<ParticleSystem>();
         player = GameObject.Find("MainPlayer");
        
         playerSprite = player.GetComponent<SpriteRenderer>();
@@ -20,8 +18,6 @@ public class IntroRocket : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && Input.GetButton("Crouch"))
         {
-            particle.Play();
-            
             playerSprite.enabled = false;
             GameManager.isInputEnabled = false;
             director.Play();

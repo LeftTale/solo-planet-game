@@ -6,6 +6,7 @@ public class SpaceParalax : MonoBehaviour
     public GameObject rocketCam;
     public float parallaxEffect;
     private Transform t;
+    private static bool onVictory;
 
     void Start()
     {
@@ -18,20 +19,33 @@ public class SpaceParalax : MonoBehaviour
 
     void Update()
     {
-        t.eulerAngles = new Vector3(t.eulerAngles.x,t.eulerAngles.y,0);
+        if (onVictory)
+        {
+            transform.localPosition = new Vector3(0,0,100);
+        }
+        else
+        {
+            t.eulerAngles = new Vector3(t.eulerAngles.x, t.eulerAngles.y, 0);
 
-        float tempX = (rocketCam.transform.position.x * (1 - parallaxEffect));
-        float tempY = (rocketCam.transform.position.y * (1 - parallaxEffect));
-        
-        float distX = (rocketCam.transform.position.x * parallaxEffect);
-        float distY = (rocketCam.transform.position.y * parallaxEffect);
+            float tempX = (rocketCam.transform.position.x * (1 - parallaxEffect));
+            float tempY = (rocketCam.transform.position.y * (1 - parallaxEffect));
 
-        transform.position = new Vector3(startposX + distX, startposY + distY, transform.position.z);
+            float distX = (rocketCam.transform.position.x * parallaxEffect);
+            float distY = (rocketCam.transform.position.y * parallaxEffect);
 
-        if (tempX > startposX + length) startposX += length;
-        else if (tempX < startposX - length) startposX -= length;
+            transform.position = new Vector3(startposX + distX, startposY + distY, transform.position.z);
 
-        if (tempY > startposY + height) startposY += height;
-        else if (tempY < startposY - height) startposY -= height;
+            if (tempX > startposX + length) startposX += length;
+            else if (tempX < startposX - length) startposX -= length;
+
+            if (tempY > startposY + height) startposY += height;
+            else if (tempY < startposY - height) startposY -= height;
+        }
+    }
+
+    public bool OnVictory
+    {
+        get => onVictory;
+        set => onVictory = value;
     }
 }

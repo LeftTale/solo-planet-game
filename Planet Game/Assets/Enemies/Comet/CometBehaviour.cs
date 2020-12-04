@@ -11,7 +11,7 @@ public class CometBehaviour : MonoBehaviour
 
     private void Start()
     {
-        cometGameObject = GameObject.Find("Comet");
+       
         textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").GetComponent<TextDirector>();
         playerObject = GameObject.Find("MainPlayer");
     }

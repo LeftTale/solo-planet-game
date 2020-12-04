@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     public AudioClip typingAudioClip;
     public AudioClip ambientMusic;
     public PlayableDirector cutScene;
+    private Rigidbody2D rbPlayer;
+    private GameManager gameManager;
 
 
     [Space(10)]
@@ -29,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
     private bool locked;
     private float xDeath, yDeath;
     private bool deathBlock;
+    private Vector3 startingPos;
+    
 
     [Space(10)] 
     [Header("Planet Specifics")]
@@ -40,14 +44,30 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        //Save the name of the level as a string
         Scene currentScene = SceneManager.GetActiveScene();
         sceneName = currentScene.name;
+        startingPos = transform.position;
+
         audioSource = GetComponentInChildren<AudioSource>();
+
         playerCam = GameObject.Find("PlayerCam").GetComponent<Camera>();
+
         GameManager.isInputEnabled = true;
-        textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").gameObject
-            .GetComponent<TextDirector>();
+
+        rbPlayer = GetComponent<Rigidbody2D>();
+        
+        if (sceneName != "IntroLevel")
+        {
+            GameManager.isBoostEnabled = true;
+            textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").gameObject
+                .GetComponent<TextDirector>();
+        }
+        else
+        {
+            GameManager.isBoostEnabled = false;
+            textDirector = GameObject.Find("Canvas").transform.Find("UIDirector").gameObject
+                .GetComponent<TextDirector>();
+        }
     }
 
     void Update()
@@ -57,13 +77,14 @@ public class PlayerMovement : MonoBehaviour
             cutScene.time = 24f;
         }
 
+        //Script that controls the death logic
         if (dead && locked)
         { 
             transform.position = new Vector3(xDeath,yDeath,0);
             deathTimer -= Time.deltaTime;
             if (deathTimer < 0)
             {
-                SceneManager.LoadScene(sceneName);
+                Death();
             }
         }
         else if (dead)
@@ -77,8 +98,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (deathTimer < 0)
             {
-                
-                SceneManager.LoadScene(sceneName);
+                Death();
             }
         }
 
@@ -100,14 +120,14 @@ public class PlayerMovement : MonoBehaviour
             //When on the planet, speed up the character
             runSpeed = controller.Attracted ? 120f : 40f;
 
-
+            //Alternative Death Logic
             if (dead && locked)
             { 
                 transform.position = new Vector3(xDeath,yDeath,0);
                 deathTimer -= Time.deltaTime;
                 if (deathTimer < 0)
                 {
-                    SceneManager.LoadScene(sceneName);
+                    Death();
                 }
             }
             else if (dead)
@@ -120,15 +140,29 @@ public class PlayerMovement : MonoBehaviour
                 deathTimer -= Time.deltaTime;
 
                 if (deathTimer < 0)
-                    SceneManager.LoadScene(sceneName);
+                {
+                    Death();
+                }
             }
         }
     }
 
+    void Death()
+    {
+        transform.position = startingPos;
+        dead = false;
+        GameManager.isInputEnabled = true;
+        rbPlayer.velocity = Vector2.zero;
+        textDirector.SendDeathText(5);
+        deathTimer = 6f;
+    }
+
+    //Triggers death animation
     void DeathAnimBlock()
     { 
         animator.SetTrigger("Death");
         deathBlock = true;
+        animator.SetBool("isDead", true);
     }
 
     void FixedUpdate()
@@ -178,13 +212,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay2D(Collider2D other)
-    {
-        
-    }
-
     private void OnTriggerExit2D(Collider2D other)
     {
+        //Kills the player if they leave the level
         if (other.gameObject.CompareTag("LevelBoundary"))
         {
             xDeath = transform.position.x;

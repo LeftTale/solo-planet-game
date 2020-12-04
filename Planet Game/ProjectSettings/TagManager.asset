@@ -19,6 +19,8 @@ TagManager:
   - Enemy
   - Deadly
   - Score
+  - Bouncy
+  - Victory
   layers:
   - Default
   - TransparentFX
@@ -85,4 +87,10 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: BackGround
+    uniqueID: 44023297
+    locked: 0
+  - name: ForeGround
+    uniqueID: 9603943
     locked: 0

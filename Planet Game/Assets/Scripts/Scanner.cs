@@ -2,6 +2,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Scanner : MonoBehaviour
 {
@@ -11,9 +12,14 @@ public class Scanner : MonoBehaviour
     private Animator animator;
     private bool wipeText = true;
     private AudioSource audioSource;
+    public SpaceParalax SpaceParalax;
+    public Animation FadeAnimation;
 
     private void Start()
     {
+        //              //
+        //Initialization//
+        //              //
         textDirector = GameObject.Find("AveryUI").transform.Find("TextDirector").gameObject
             .GetComponent<TextDirector>();
 
@@ -24,6 +30,7 @@ public class Scanner : MonoBehaviour
         audioSource = GameObject.Find("AveryUI").transform.Find("ScannerImage").transform.Find("ScannerText").gameObject.GetComponent<AudioSource>();
         
         animator = GameObject.Find("ScannerImage").GetComponent<Animator>();
+        
     }
 
     private void Update()
@@ -33,10 +40,12 @@ public class Scanner : MonoBehaviour
 
         if (textWriter.UIText == null)
             audioSource.Stop();
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        //Checks what planet the player is standing on and sends the appropriate text
         if (other.gameObject.CompareTag("Planet"))
         {
             textDirector.SendScannerMessage(0);
@@ -62,6 +71,27 @@ public class Scanner : MonoBehaviour
             textDirector.SendScannerMessage(4);
             textDirector.SendStatusMessage(4);
         }
+        else if (other.gameObject.CompareTag("Bouncy"))
+        {
+            textDirector.SendScannerMessage(5);
+            textDirector.SendStatusMessage(5);
+        }
+        else if (other.gameObject.CompareTag("Ice Planet"))
+        {
+            textDirector.SendScannerMessage(6);
+            textDirector.SendStatusMessage(6);
+        }
+        else if (other.gameObject.CompareTag("Victory"))
+        {
+            textDirector.SendScannerMessage(7);
+            textDirector.SendStatusMessage(0);
+            SpaceParalax.OnVictory = true;
+        }
+
+        if (other.gameObject.name == "VictoryHouse")
+        {
+            StartCoroutine(fadeToNectLevelEnumerator());
+        }
 
 
         //11 is the gravity field layer
@@ -74,15 +104,26 @@ public class Scanner : MonoBehaviour
         }
     }
 
+    IEnumerator fadeToNectLevelEnumerator()
+    {
+        FadeAnimation.Play();
+
+        yield return new WaitForSeconds(5);
+
+        SceneManager.LoadScene(4);
+    }
+
     private void OnTriggerExit2D(Collider2D other)
     {
         //Gravity layer
+        //Resets things like UI upon leaving a planet
         if (other.gameObject.layer == 11)
         {
             animator.SetBool("Darken",false);
             animator.SetBool("Undarken",true);
             wipeText = true;
             audioSource.Stop();
+            SpaceParalax.OnVictory = false;
         }
     }
 }
